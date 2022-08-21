@@ -9,22 +9,28 @@ const defaultOptions = {
     options: {}
 }
 
-const plugin = (options = {}) => {
-    options = Object.assign(defaultOptions, options)
+const plugin = (userOptions = {}) => {
+    userOptions = Object.assign(defaultOptions, userOptions)
 
     return {
         name: '@vituum/vite-plugin-juice',
         enforce: 'post',
+        vituum: {
+            plugin: () => plugin(Object.assign({
+                paths: ['emails'],
+                tables: true
+            }, userOptions))
+        },
         transformIndexHtml: {
             enforce: 'post',
             transform: (html, { path }) => {
-                const paths = options.paths
+                const paths = userOptions.paths
 
                 if (paths.length === 0 || paths.filter(p => path.startsWith(`/${p}`)).length === 0) {
                     return html
                 }
 
-                if (options.tables) {
+                if (userOptions.tables) {
                     html = html.replaceAll('<table', '<table border="0" cellpadding="0" cellspacing="0"')
                 }
 
@@ -32,7 +38,7 @@ const plugin = (options = {}) => {
                     preserve: false
                 })]).process(html, { syntax: postcssHtml() })
 
-                return juice(result.content, options.options)
+                return juice(result.content, userOptions.options)
             }
         }
     }
