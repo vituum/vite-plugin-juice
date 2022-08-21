@@ -15,12 +15,6 @@ const plugin = (userOptions = {}) => {
     return {
         name: '@vituum/vite-plugin-juice',
         enforce: 'post',
-        vituum: {
-            plugin: () => plugin(Object.assign({
-                paths: ['emails'],
-                tables: true
-            }, userOptions))
-        },
         transformIndexHtml: {
             enforce: 'post',
             transform: (html, { path }) => {
