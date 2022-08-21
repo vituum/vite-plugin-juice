@@ -10,7 +10,7 @@ const defaultOptions = {
 }
 
 const plugin = (options = {}) => {
-    options = Object.assign(options, defaultOptions)
+    options = Object.assign(defaultOptions, options)
 
     return {
         name: '@vituum/vite-plugin-juice',
