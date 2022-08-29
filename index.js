@@ -6,7 +6,7 @@ import juice from 'juice'
 const defaultOptions = {
     paths: [],
     tables: false,
-    options: {}
+    juice: {}
 }
 
 const plugin = (userOptions = {}) => {
@@ -28,11 +28,15 @@ const plugin = (userOptions = {}) => {
                     html = html.replaceAll('<table', '<table border="0" cellpadding="0" cellspacing="0"')
                 }
 
+                html = html.replace('</head>', '</head><!-- postcss-disable -->')
+
                 const result = postcss([postcssCustomProperties({
                     preserve: false
                 })]).process(html, { syntax: postcssHtml() })
 
-                return juice(result.content, userOptions.options)
+                const output = result.content.replace('</head><!-- postcss-disable -->', '</head>')
+
+                return juice(output, userOptions.options)
             }
         }
     }

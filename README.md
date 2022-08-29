@@ -3,6 +3,8 @@
 
 # ⚡️🧃 ViteJuice
 
+Inlines CSS (sass, less etc. also supported) code to HTML via [Juice](https://github.com/Automattic/juice). It's handy for creating email templates.
+
 ```js
 import juice from '@vituum/vite-plugin-juice'
 
@@ -11,12 +13,15 @@ export default {
     juice({ 
       paths: [],
       tables: false,
-      options: {}
+      juice: {}
     })
   ]
 }
 ```
 
+Read the [docs](https://vituum.dev/config/integrations-options.html#vituum-juice) to learn more about the plugin options.
+
 ### Requirements
 
 - [Node.js LTS (16.x)](https://nodejs.org/en/download/)
+- [Vite](https://vitejs.dev/) or [Vituum](https://vituum.dev/)
