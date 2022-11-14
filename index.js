@@ -6,6 +6,7 @@ import juice from 'juice'
 const defaultOptions = {
     paths: [],
     tables: false,
+    doctype: '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">',
     juice: {}
 }
 
@@ -19,6 +20,8 @@ const plugin = (userOptions = {}) => {
             enforce: 'post',
             transform: (html, { path }) => {
                 const paths = userOptions.paths
+
+                html = html.replace('<!DOCTYPE html>', userOptions.doctype)
 
                 if (paths.length === 0 || paths.filter(p => path.startsWith(`/${p}`)).length === 0) {
                     return html
