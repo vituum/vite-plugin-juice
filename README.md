@@ -3,7 +3,7 @@
 
 # ⚡️🧃 ViteJuice
 
-Inlines CSS (sass, less etc. also supported) code to HTML via [Juice](https://github.com/Automattic/juice). It's handy for creating email templates.
+Inlines CSS (currently only PostCSS and CSS is supported) code to HTML via [Juice](https://github.com/Automattic/juice). It's handy for creating email templates.
 
 ```js
 import juice from '@vituum/vite-plugin-juice'
