@@ -21,11 +21,11 @@ const plugin = (userOptions = {}) => {
             transform: (html, { path }) => {
                 const paths = userOptions.paths
 
-                html = html.replace('<!DOCTYPE html>', userOptions.doctype)
-
                 if (paths.length === 0 || paths.filter(p => path.startsWith(`/${p}`)).length === 0) {
                     return html
                 }
+
+                html = html.replace('<!DOCTYPE html>', userOptions.doctype)
 
                 if (userOptions.tables) {
                     html = html.replaceAll('<table', '<table border="0" cellpadding="0" cellspacing="0"')
