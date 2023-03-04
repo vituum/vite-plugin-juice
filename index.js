@@ -34,7 +34,7 @@ const plugin = (userOptions = {}) => {
                     const headLinks = headNodes.filter(({ nodeName, attrs }) => nodeName === 'link' && attrs.filter(({name}) => name === 'data-juice-link'))
 
                     for (const link of headLinks) {
-                        const href = link.attrs.filter(({ name }) => name === 'href')[0].value
+                        const href = link.attrs.filter(({ name }) => name === 'data-href')[0].value
 
                         if (typeof userOptions.handleLinks === 'function') {
                             extraCss += await userOptions.handleLinks(href)
