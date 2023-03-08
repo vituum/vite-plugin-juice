@@ -2,7 +2,7 @@ import postcss from 'postcss'
 import postcssCustomProperties from 'postcss-custom-properties'
 import postcssHtml from 'postcss-html'
 import juice from 'juice'
-import parse5 from 'parse5'
+import * as parse5 from 'parse5'
 
 const defaultOptions = {
     paths: [],
