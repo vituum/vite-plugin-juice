@@ -9,18 +9,18 @@ import { getPackageInfo } from 'vituum/utils/common.js'
 const { name } = getPackageInfo(import.meta.url)
 
 /**
- * @type {import('@vituum/vite-plugin-juice/types/index.d.ts').PluginUserConfig}
+ * @type {import('@vituum/vite-plugin-juice/types').PluginUserConfig}
  */
 const defaultOptions = {
-    paths: ['src/emails', 'src/pages/email'],
+    paths: ['src/pages/email'],
     tables: true,
     doctype: '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">',
     options: {},
-    juiceCssLink: async (href) => href
+    juiceLink: async href => href
 }
 
 /**
- * @param {import('@vituum/vite-plugin-juice/types/index.d.ts').PluginUserConfig} pluginOptions
+ * @param {import('@vituum/vite-plugin-juice/types').PluginUserConfig} pluginOptions
  * @returns import('vite').Plugin
  */
 const plugin = (pluginOptions = {}) => {
@@ -49,13 +49,13 @@ const plugin = (pluginOptions = {}) => {
                     const document = parse5.parse(html)
                     // @ts-ignore
                     const headNodes = document.childNodes[1].childNodes[0].childNodes
-                    const headLinks = headNodes.filter(({ nodeName, attrs }) => nodeName === 'link' && attrs.filter(({ name }) => name === 'data-juice-css'))
+                    const headLinks = headNodes.filter(({ nodeName, attrs }) => nodeName === 'link' && attrs.filter(({ name }) => name === 'data-juice-link'))
 
                     for (const link of headLinks) {
                         const href = link.attrs.filter(({ name }) => name === 'data-href')[0].value
 
-                        if (typeof pluginOptions.juiceCssLink === 'function') {
-                            extraCss += await pluginOptions.juiceCssLink(href)
+                        if (typeof pluginOptions.juiceLink === 'function') {
+                            extraCss += await pluginOptions.juiceLink(href)
                         }
 
                         headNodes.splice(headNodes.indexOf(link), 1)

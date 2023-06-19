@@ -3,5 +3,5 @@ export interface PluginUserConfig {
     tables?: boolean
     doctype?: string
     options?: import('juice').Options
-    juiceCssLink?: (href: string) => string | Promise<string>
+    juiceLink?: (href: string) => string | Promise<string>
 }
