@@ -35,7 +35,7 @@ const plugin = (pluginOptions = {}) => {
             resolvedConfig = config
         },
         transformIndexHtml: {
-            enforce: 'post',
+            order: 'post',
             transform: async (html, { filename }) => {
                 const filePath = relative(resolvedConfig.root, filename)
                 const paths = pluginOptions.paths
