@@ -4,7 +4,7 @@ import postcssHtml from 'postcss-html'
 import { relative } from 'path'
 import juice from 'juice'
 import * as parse5 from 'parse5'
-import { getPackageInfo } from 'vituum/utils/common.js'
+import { getPackageInfo, normalizePath } from 'vituum/utils/common.js'
 
 const { name } = getPackageInfo(import.meta.url)
 
@@ -41,7 +41,7 @@ const plugin = (pluginOptions = {}) => {
                 const paths = pluginOptions.paths
                 let extraCss = ''
 
-                if (paths.length === 0 || paths.filter(path => filePath.startsWith(relative(resolvedConfig.root, path))).length === 0) {
+                if (paths.length === 0 || paths.filter(path => filePath.startsWith(relative(resolvedConfig.root, normalizePath(path)))).length === 0) {
                     return html
                 }
 
