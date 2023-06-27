@@ -1,55 +1,73 @@
 import postcss from 'postcss'
 import postcssCustomProperties from 'postcss-custom-properties'
 import postcssHtml from 'postcss-html'
+import { relative } from 'path'
 import juice from 'juice'
 import * as parse5 from 'parse5'
+import { getPackageInfo, normalizePath } from 'vituum/utils/common.js'
 
+const { name } = getPackageInfo(import.meta.url)
+
+/**
+ * @type {import('@vituum/vite-plugin-juice/types').PluginUserConfig}
+ */
 const defaultOptions = {
-    paths: [],
-    tables: false,
+    paths: ['src/pages/email'],
+    tables: true,
     doctype: '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">',
     options: {},
-    handleLinks: (href) => href
+    juiceLink: async href => href
 }
 
-const plugin = (userOptions = {}) => {
-    userOptions = Object.assign(defaultOptions, userOptions)
+/**
+ * @param {import('@vituum/vite-plugin-juice/types').PluginUserConfig} pluginOptions
+ * @returns import('vite').Plugin
+ */
+const plugin = (pluginOptions = {}) => {
+    let resolvedConfig
+
+    pluginOptions = Object.assign(defaultOptions, pluginOptions)
 
     return {
-        name: '@vituum/vite-plugin-juice',
+        name,
         enforce: 'post',
+        configResolved (config) {
+            resolvedConfig = config
+        },
         transformIndexHtml: {
-            enforce: 'post',
-            transform: async (html, { path }) => {
-                const paths = userOptions.paths
+            order: 'post',
+            transform: async (html, { filename }) => {
+                const filePath = relative(resolvedConfig.root, filename)
+                const paths = pluginOptions.paths
                 let extraCss = ''
 
-                if (paths.length === 0 || paths.filter(p => path.startsWith(`/${p}`)).length === 0) {
+                if (paths.length === 0 || paths.filter(path => filePath.startsWith(relative(resolvedConfig.root, normalizePath(path)))).length === 0) {
                     return html
                 }
 
                 if (html.includes('data-juice-link')) {
                     const document = parse5.parse(html)
+                    // @ts-ignore
                     const headNodes = document.childNodes[1].childNodes[0].childNodes
-                    const headLinks = headNodes.filter(({ nodeName, attrs }) => nodeName === 'link' && attrs.filter(({name}) => name === 'data-juice-link'))
+                    const headLinks = headNodes.filter(({ nodeName, attrs }) => nodeName === 'link' && attrs.filter(({ name }) => name === 'data-juice-link'))
 
                     for (const link of headLinks) {
                         const href = link.attrs.filter(({ name }) => name === 'data-href')[0].value
 
-                        if (typeof userOptions.handleLinks === 'function') {
-                            extraCss += await userOptions.handleLinks(href)
+                        if (typeof pluginOptions.juiceLink === 'function') {
+                            extraCss += await pluginOptions.juiceLink(href)
                         }
 
-                        headNodes.splice(headNodes.indexOf(link), 1);
+                        headNodes.splice(headNodes.indexOf(link), 1)
                     }
 
                     html = parse5.serialize(document)
                     html = html.replace('</head>', `<style>${extraCss}</style></head>`)
                 }
 
-                html = html.replace('<!DOCTYPE html>', userOptions.doctype)
+                html = html.replace('<!DOCTYPE html>', pluginOptions.doctype)
 
-                if (userOptions.tables) {
+                if (pluginOptions.tables) {
                     html = html.replaceAll('<table', '<table border="0" cellpadding="0" cellspacing="0"')
                 }
 
@@ -61,7 +79,7 @@ const plugin = (userOptions = {}) => {
 
                 const output = result.content.replace('</head><!-- postcss-disable -->', '</head>')
 
-                return juice(output, userOptions.options)
+                return juice(output, pluginOptions.options)
             }
         }
     }
