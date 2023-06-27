@@ -34,5 +34,5 @@ Read the [docs](https://vituum.dev/plugins/juice.html) to learn more about the p
 
 ### Requirements
 
-- [Node.js LTS (18.x)](https://nodejs.org/en/download/)
+- [Node.js LTS (16.x)](https://nodejs.org/en/download/)
 - [Vite](https://vitejs.dev/)

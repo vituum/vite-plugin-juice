@@ -5,3 +5,5 @@ export interface PluginUserConfig {
     options?: import('juice').Options
     juiceLink?: (href: string) => string | Promise<string>
 }
+
+export default function plugin(options?: PluginUserConfig) : import('vite').Plugin

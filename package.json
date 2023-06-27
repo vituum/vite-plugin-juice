@@ -1,14 +1,15 @@
 {
   "name": "@vituum/vite-plugin-juice",
-  "version": "1.0.0-beta.1",
+  "version": "1.0.0",
   "type": "module",
   "main": "index.js",
+  "types": "types/index.d.ts",
   "scripts": {
     "tsc": "tsc",
     "eslint": "eslint '**/*.js' --fix"
   },
   "dependencies": {
-    "vituum": "^1.0.0-beta.3",
+    "vituum": "^1.0.0",
     "juice": "^9.0.0",
     "postcss": "^8.4.24",
     "postcss-custom-properties": "^13.2.0",
@@ -16,7 +17,7 @@
     "parse5": "^7.1.2"
   },
   "devDependencies": {
-    "@types/node": "^20.3.1",
+    "@types/node": "^20.3.2",
     "vite": "^4.3.9",
     "eslint": "^8.43.0",
     "eslint-config-standard": "^17.1.0",
@@ -31,7 +32,7 @@
     "./types": "./types/*"
   },
   "engines": {
-    "node": ">=18.0.0",
+    "node": ">=16.0.0",
     "npm": ">=9.0.0"
   },
   "repository": {
