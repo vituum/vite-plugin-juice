@@ -1,10 +1,11 @@
 import postcss from 'postcss'
 import postcssCustomProperties from 'postcss-custom-properties'
 import postcssHtml from 'postcss-html'
+import postcssGlobalData from '@csstools/postcss-global-data'
 import { relative } from 'path'
 import juice from 'juice'
 import * as parse5 from 'parse5'
-import { getPackageInfo, normalizePath } from 'vituum/utils/common.js'
+import { getPackageInfo, normalizePath, merge } from 'vituum/utils/common.js'
 
 const { name } = getPackageInfo(import.meta.url)
 
@@ -15,6 +16,12 @@ const defaultOptions = {
     paths: ['src/pages/email'],
     tables: true,
     doctype: '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">',
+    postcss: {
+        globalData: {},
+        customProperties: {
+            preserve: false
+        }
+    },
     options: {},
     juiceLink: async href => href
 }
@@ -26,7 +33,7 @@ const defaultOptions = {
 const plugin = (pluginOptions = {}) => {
     let resolvedConfig
 
-    pluginOptions = Object.assign(defaultOptions, pluginOptions)
+    pluginOptions = merge(defaultOptions, pluginOptions)
 
     return {
         name,
@@ -73,9 +80,7 @@ const plugin = (pluginOptions = {}) => {
 
                 html = html.replace('</head>', '</head><!-- postcss-disable -->')
 
-                const result = postcss([postcssCustomProperties({
-                    preserve: false
-                })]).process(html, { syntax: postcssHtml() })
+                const result = postcss([postcssGlobalData(pluginOptions.postcss.globalData), postcssCustomProperties(pluginOptions.postcss.customProperties)]).process(html, { syntax: postcssHtml() })
 
                 const output = result.content.replace('</head><!-- postcss-disable -->', '</head>')
 
