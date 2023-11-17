@@ -43,7 +43,7 @@ const plugin = (pluginOptions = {}) => {
         },
         transformIndexHtml: {
             order: 'post',
-            transform: async (html, { filename }) => {
+            handler: async (html, { filename }) => {
                 const filePath = relative(resolvedConfig.root, filename)
                 const paths = pluginOptions.paths
                 let extraCss = ''
