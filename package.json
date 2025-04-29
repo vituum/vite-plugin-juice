@@ -1,12 +1,13 @@
 {
   "name": "@vituum/vite-plugin-juice",
-  "version": "1.3.0",
+  "version": "1.4.0-next.1",
   "type": "module",
   "main": "index.js",
   "types": "types/index.d.ts",
   "scripts": {
     "tsc": "tsc",
-    "eslint": "eslint '**/*.js' --fix"
+    "eslint": "eslint '**/*.js' --fix",
+    "publish-next": "npm publish --tag next"
   },
   "dependencies": {
     "vituum": "^1.1",

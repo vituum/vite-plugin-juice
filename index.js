@@ -5,7 +5,7 @@ import postcssGlobalData from '@csstools/postcss-global-data'
 import { relative } from 'path'
 import juice from 'juice'
 import * as parse5 from 'parse5'
-import { getPackageInfo, normalizePath, merge } from 'vituum/utils/common.js'
+import { getPackageInfo, normalizePath, merge, pluginError } from 'vituum/utils/common.js'
 
 const { name } = getPackageInfo(import.meta.url)
 
@@ -22,8 +22,7 @@ const defaultOptions = {
             preserve: false
         }
     },
-    options: {},
-    juiceLink: async href => href
+    options: {}
 }
 
 /**
@@ -43,7 +42,7 @@ const plugin = (pluginOptions = {}) => {
         },
         transformIndexHtml: {
             order: 'post',
-            handler: async (html, { filename }) => {
+            handler: async (html, { filename, bundle, server }) => {
                 const filePath = relative(resolvedConfig.root, filename)
                 const paths = pluginOptions.paths
                 let extraCss = ''
@@ -52,17 +51,31 @@ const plugin = (pluginOptions = {}) => {
                     return html
                 }
 
-                if (html.includes('data-juice-link')) {
-                    const document = parse5.parse(html)
-                    // @ts-ignore
-                    const headNodes = document.childNodes[1].childNodes[0].childNodes
-                    const headLinks = headNodes.filter(({ nodeName, attrs }) => nodeName === 'link' && attrs.filter(({ name }) => name === 'data-juice-link'))
+                const document = parse5.parse(html)
+                // @ts-ignore
+                const headNodes = document.childNodes[1].childNodes[0].childNodes
+                const headLinks = headNodes.filter(({ nodeName, attrs }) => nodeName === 'link' && attrs.filter(({ name, value }) => name === 'rel' && value === 'stylesheet'))
 
-                    for (const link of headLinks) {
-                        const href = link.attrs.filter(({ name }) => name === 'data-href')[0].value
+                for (const link of headLinks) {
+                    const href = link.attrs.filter(({ name }) => name === 'href')[0].value
 
-                        if (typeof pluginOptions.juiceLink === 'function') {
-                            extraCss += await pluginOptions.juiceLink(href)
+                    if (href && !href.startsWith('http')) {
+                        if (server) {
+                            const resultCss = await server.transformRequest(href + '?direct', {
+                                html: false
+                            }).catch((error) => pluginError(error, server, name))
+
+                            if (resultCss?.code) {
+                                extraCss += resultCss?.code
+                            }
+                        } else {
+                            const bundledCss = bundle[href.startsWith('/') ? href.slice(1) : href]?.source
+
+                            if (bundledCss) {
+                                extraCss += bundledCss
+                            } else {
+                                throw new TypeError(`${href} doesn't exists in bundle`)
+                            }
                         }
 
                         headNodes.splice(headNodes.indexOf(link), 1)

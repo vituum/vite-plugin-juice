@@ -15,8 +15,7 @@ export default {
       tables: true,
       postcss: {},
       doctype: '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">',
-      options: {},
-        juiceLink: async href => href
+      options: {}
     })
   ]
 }
@@ -28,7 +27,7 @@ Only PostCSS and CSS is supported, you can transform sass or less via `juiceLink
 * Less - https://lesscss.org/usage/#programmatic-usage
 
 ```html
-<link rel="stylesheet" data-href="/src/email.less" data-juice-link>
+<link rel="stylesheet" href="/src/email.less">
 ```
 
 Read the [docs](https://vituum.dev/plugins/juice.html) to learn more about the plugin options.
