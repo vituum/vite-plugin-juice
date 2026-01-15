@@ -11,7 +11,7 @@
     "baseUrl": ".",
     "paths": {
       "@vituum/vite-plugin-juice/*": ["./*"],
-      "vituum/*": ["./node_modules/vituum/src/*"]
+      "vituum/*": ["./node_modules/vituum/*"]
     }
   },
   "include": [
