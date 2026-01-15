@@ -5,7 +5,7 @@ import postcssGlobalData from '@csstools/postcss-global-data'
 import { relative } from 'path'
 import juice from 'juice'
 import * as parse5 from 'parse5'
-import { getPackageInfo, normalizePath, merge, pluginError } from 'vituum/utils/common.js'
+import { getPackageInfo, normalizePath, deepMergeWith, pluginError } from 'vituum/utils/common.js'
 
 const { name } = getPackageInfo(import.meta.url)
 
@@ -32,7 +32,7 @@ const defaultOptions = {
 const plugin = (pluginOptions = {}) => {
   let resolvedConfig
 
-  pluginOptions = merge(defaultOptions, pluginOptions)
+  pluginOptions = deepMergeWith(defaultOptions, pluginOptions)
 
   return {
     name,
