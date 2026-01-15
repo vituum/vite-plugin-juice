@@ -1,6 +1,6 @@
 {
   "name": "@vituum/vite-plugin-juice",
-  "version": "2.0.0-next.2",
+  "version": "2.0.0-next.3",
   "type": "module",
   "main": "index.js",
   "types": "types/index.d.ts",
@@ -10,7 +10,7 @@
     "publish-next": "npm publish --tag next"
   },
   "dependencies": {
-    "vituum": "^2.0.0-next.6",
+    "vituum": "^2.0.0-next.7",
     "juice": "^11",
     "postcss": "^8.5",
     "@csstools/postcss-global-data": "^4.0",
@@ -32,9 +32,9 @@
     "types"
   ],
   "exports": {
-    ".": "./index.js",
-    "./types/*": {
-      "types": "./types/*"
+    ".": {
+      "default": "./index.js",
+      "types": "./types/index.d.ts"
     }
   },
   "engines": {
