@@ -1,6 +1,5 @@
 import postcss from 'postcss'
 import postcssCustomProperties from 'postcss-custom-properties'
-import postcssHtml from 'postcss-html'
 import postcssGlobalData from '@csstools/postcss-global-data'
 import { relative } from 'path'
 import juice from 'juice'
@@ -21,8 +20,25 @@ const defaultOptions = {
     customProperties: {
       preserve: false,
     },
+    plugins: [],
   },
   options: {},
+}
+
+/**
+ * @param {Object} node
+ * @param {Function} predicate
+ * @param {Array} [results=[]]
+ * @returns {Array}
+ */
+const findAllNodes = (node, predicate, results = []) => {
+  if (predicate(node)) results.push(node)
+  if (node.childNodes) {
+    for (const child of node.childNodes) {
+      findAllNodes(child, predicate, results)
+    }
+  }
+  return results
 }
 
 /**
@@ -37,6 +53,7 @@ const plugin = (pluginOptions = {}) => {
   return {
     name,
     enforce: 'post',
+    /**  @param {import('vite').ResolvedConfig} config */
     configResolved(config) {
       resolvedConfig = config
     },
@@ -45,18 +62,22 @@ const plugin = (pluginOptions = {}) => {
       handler: async (html, { filename, bundle, server }) => {
         const filePath = relative(resolvedConfig.root, filename)
         const paths = pluginOptions.paths
-        let extraCss = ''
+        let transformedCss = ''
 
         if (paths.length === 0 || paths.filter(path => filePath.startsWith(relative(resolvedConfig.root, normalizePath(path)))).length === 0) {
           return html
         }
 
         const document = parse5.parse(html)
-        // @ts-ignore
-        const headNodes = document.childNodes[1].childNodes[0].childNodes
-        const headLinks = headNodes.filter(({ nodeName, attrs }) => nodeName === 'link' && attrs.filter(({ name, value }) => name === 'rel' && value === 'stylesheet'))
 
-        for (const link of headLinks) {
+        const styleLinks = findAllNodes(document, n =>
+          n.nodeName === 'link'
+          && n.attrs?.some(a => a.name === 'rel' && a.value === 'stylesheet')
+          && !n.attrs?.some(a => a.name === 'data-vite-juice' && a.value === 'ignore'),
+        )
+
+        for (const link of styleLinks) {
+          const parent = link.parentNode
           const href = link.attrs.filter(({ name }) => name === 'href')[0].value
 
           if (href && !href.startsWith('http')) {
@@ -66,25 +87,24 @@ const plugin = (pluginOptions = {}) => {
               }).catch(error => pluginError(error, server, name))
 
               if (resultCss?.code) {
-                extraCss += resultCss?.code
+                transformedCss += resultCss?.code
               }
             }
             else {
               const bundledCss = bundle[href.startsWith('/') ? href.slice(1) : href]?.source
 
               if (bundledCss) {
-                extraCss += bundledCss
+                transformedCss += bundledCss
               }
               else {
                 throw new TypeError(`${href} doesn't exists in bundle`)
               }
             }
 
-            headNodes.splice(headNodes.indexOf(link), 1)
+            parent.childNodes.splice(parent.childNodes.indexOf(link), 1)
           }
 
           html = parse5.serialize(document)
-          html = html.replace('</head>', `<style>${extraCss}</style></head>`)
         }
 
         html = html.replace('<!DOCTYPE html>', pluginOptions.doctype)
@@ -93,13 +113,19 @@ const plugin = (pluginOptions = {}) => {
           html = html.replaceAll('<table', '<table border="0" cellpadding="0" cellspacing="0"')
         }
 
-        html = html.replace('</head>', '</head><!-- postcss-disable -->')
+        if (transformedCss) {
+          const processedCss = postcss(
+            [
+              postcssGlobalData(pluginOptions.postcss.globalData),
+              postcssCustomProperties(pluginOptions.postcss.customProperties),
+              ...pluginOptions.postcss.plugins,
+            ],
+          ).process(transformedCss, pluginOptions.postcss.processOptions)
 
-        const result = postcss([postcssGlobalData(pluginOptions.postcss.globalData), postcssCustomProperties(pluginOptions.postcss.customProperties)]).process(html, { syntax: postcssHtml() })
+          html = html.replace('</head>', `<style>${processedCss}</style></head>`)
+        }
 
-        const output = result.content.replace('</head><!-- postcss-disable -->', '</head>')
-
-        return juice(output, pluginOptions.options)
+        return juice(html, pluginOptions.options)
       },
     },
   }
