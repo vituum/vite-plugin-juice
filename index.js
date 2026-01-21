@@ -43,7 +43,7 @@ const findAllNodes = (node, predicate, results = []) => {
 
 /**
  * @param {import('@vituum/vite-plugin-juice/types').PluginUserConfig} pluginOptions
- * @returns import('vite').Plugin
+ * @returns {import('vite').Plugin}
  */
 const plugin = (pluginOptions = {}) => {
   let resolvedConfig
@@ -82,16 +82,17 @@ const plugin = (pluginOptions = {}) => {
 
           if (href && !href.startsWith('http')) {
             if (server) {
-              const resultCss = await server.transformRequest(href + '?direct', {
-                html: false,
-              }).catch(error => pluginError(error, server, name))
+              const resultCss = await server.transformRequest(href + '?direct').catch((error) => {
+                pluginError(error, server, name)
+              })
 
-              if (resultCss?.code) {
-                transformedCss += resultCss?.code
+              if (resultCss && 'code' in resultCss && resultCss.code) {
+                transformedCss += resultCss.code
               }
             }
             else {
-              const bundledCss = bundle[href.startsWith('/') ? href.slice(1) : href]?.source
+              const asset = bundle[href.startsWith('/') ? href.slice(1) : href]
+              const bundledCss = asset && 'source' in asset ? asset.source : undefined
 
               if (bundledCss) {
                 transformedCss += bundledCss
