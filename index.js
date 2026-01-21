@@ -1,6 +1,4 @@
 import postcss from 'postcss'
-import postcssCustomProperties from 'postcss-custom-properties'
-import postcssGlobalData from '@csstools/postcss-global-data'
 import { relative } from 'path'
 import juice from 'juice'
 import * as parse5 from 'parse5'
@@ -16,10 +14,6 @@ const defaultOptions = {
   tables: true,
   doctype: '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">',
   postcss: {
-    globalData: {},
-    customProperties: {
-      preserve: false,
-    },
     plugins: [],
   },
   options: {},
@@ -114,13 +108,8 @@ const plugin = (pluginOptions = {}) => {
           html = html.replaceAll('<table', '<table border="0" cellpadding="0" cellspacing="0"')
         }
 
-        if (transformedCss) {
-          const processedCss = postcss(
-            [
-              postcssGlobalData(pluginOptions.postcss.globalData),
-              postcssCustomProperties(pluginOptions.postcss.customProperties),
-              ...pluginOptions.postcss.plugins,
-            ],
+        if (transformedCss && pluginOptions.postcss.plugins.length > 0) {
+          const processedCss = postcss(pluginOptions.postcss.plugins,
           ).process(transformedCss, pluginOptions.postcss.processOptions)
 
           html = html.replace('</head>', `<style>${processedCss}</style></head>`)
