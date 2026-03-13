@@ -3,8 +3,8 @@ export interface PluginUserConfig {
     tables?: boolean
     doctype?: string
     postcss?: {
-        globalData?: import('@csstools/postcss-global-data').pluginOptions
-        customProperties?: import('postcss-custom-properties').pluginOptions
+        processOptions?: import('postcss').ProcessOptions
+        plugins?: import('postcss').AcceptedPlugin[]
     }
     options?: import('juice').Options
 }

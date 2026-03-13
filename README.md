@@ -21,11 +21,6 @@ export default {
 }
 ```
 
-Only PostCSS and CSS is supported, you can transform sass or less via `juiceLink()` function. And process it manually.
-
-* Sass - https://sass-lang.com/documentation/js-api/
-* Less - https://lesscss.org/usage/#programmatic-usage
-
 ```html
 <link rel="stylesheet" href="/src/email.less">
 ```
@@ -34,5 +29,5 @@ Read the [docs](https://vituum.dev/plugins/juice.html) to learn more about the p
 
 ### Requirements
 
-- [Node.js LTS (16.x)](https://nodejs.org/en/download/)
+- [Node.js LTS (20.x)](https://nodejs.org/en/download/)
 - [Vite](https://vitejs.dev/)
